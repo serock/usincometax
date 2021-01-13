@@ -51,6 +51,20 @@ def _txf_write_record_format_3(
     _txf_write('^')
     return
 
+def _txf_write_record_format_6(
+        date: str, amount: str, state: str, ref_num: int, copy: int = 1,
+        line: int = 1) -> None:
+    # Write a Record Format 6 TXF record.
+    _txf_write('TS')
+    _txf_write(f'N{ref_num}')
+    _txf_write(f'C{copy}')
+    _txf_write(f'L{line}')
+    _txf_write('D' + date)
+    _txf_write('$' + amount)
+    _txf_write('P' + state)
+    _txf_write('^')
+    return
+
 def write_header(program: str) -> None:
     """Write a TXF header."""
     _txf_write('V042')
@@ -85,4 +99,14 @@ def write_cash_donation(
 def write_cash_donations_summary(amount: str) -> None:
     """Write a TXF summary record for cash donations."""
     _txf_write_record_format_1(_txf_expense(amount), 280)
+    return
+
+def write_federal_est_tax_payment(date: str, amount: str) -> None:
+    """Write a TXF summary record for a federal quarterly estimated tax payment."""
+    _txf_write_record_format_6(date, _txf_expense(amount), 'XX', 521)
+    return
+
+def write_state_est_tax_payment(date: str, amount: str, state: str) -> None:
+    """Write a TXF summary record for a state quarterly estimated tax payment."""
+    _txf_write_record_format_6(date, _txf_expense(amount), state, 522)
     return
