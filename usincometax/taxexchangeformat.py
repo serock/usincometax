@@ -86,7 +86,7 @@ def write_1099int(payer: str, box_1: str = None, box_3: str = None, box_4: str =
     return
 
 def write_cash_donation(
-        date: str, account: str, check_number: str, payee: str, amount: str, memo: str,
+        date: str, payee: str, amount: str, account: str, check_number: str, memo: str,
         category: str) -> None:
     """Write a TXF detail record for a cash donation."""
     # Ensure that a category is present so that TurboTax will parse the detail line correctly.
