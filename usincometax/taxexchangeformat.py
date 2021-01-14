@@ -53,15 +53,17 @@ def _txf_write_record_format_3(
 
 def _txf_write_record_format_6(
         date: str, amount: str, state: str, ref_num: int, copy: int = 1,
-        line: int = 1) -> None:
+        line: int = 1, detail: Optional[str] = None) -> None:
     # Write a Record Format 6 TXF record.
-    _txf_write('TS')
+    _txf_write('TS' if detail is None else 'TD')
     _txf_write(f'N{ref_num}')
     _txf_write(f'C{copy}')
     _txf_write(f'L{line}')
     _txf_write('D' + date)
     _txf_write('$' + amount)
     _txf_write('P' + state)
+    if detail is not None:
+        _txf_write('X' + detail)
     _txf_write('^')
     return
 
@@ -101,12 +103,38 @@ def write_cash_donations_summary(amount: str) -> None:
     _txf_write_record_format_1(_txf_expense(amount), 280)
     return
 
-def write_federal_est_tax_payment(date: str, amount: str) -> None:
-    """Write a TXF summary record for a federal quarterly estimated tax payment."""
-    _txf_write_record_format_6(date, _txf_expense(amount), 'XX', 521)
+def write_federal_est_tax_payment(
+        date: str, amount: str, account: str, check_number: str, payee: str, memo: str,
+        category: str) -> None:
+    """Write a TXF detail record for a federal quarterly estimated tax payment."""
+    # Ensure that a category is present so that TurboTax will parse the detail line correctly.
+    if category.lstrip() == '':
+        category = 'Fed qtr est tax'
+    _txf_write_record_format_6(
+        date, _txf_expense(amount), 'XX', 521,
+        detail=f'{date:10.10} {account:30.30} {check_number:6.6} {payee:40.40}'\
+            f'{memo:40.40} {category:.15}')
     return
 
-def write_state_est_tax_payment(date: str, amount: str, state: str) -> None:
-    """Write a TXF summary record for a state quarterly estimated tax payment."""
-    _txf_write_record_format_6(date, _txf_expense(amount), state, 522)
+def write_federal_est_tax_summary(amount: str) -> None:
+    """Write a TXF summary record for federal quarterly estimated tax payments."""
+    _txf_write_record_format_6('', _txf_expense(amount), 'XX', 521)
+    return
+
+def write_state_est_tax_payment(
+        date: str, amount: str, state: str, account: str, check_number: str, payee: str,
+        memo: str, category: str) -> None:
+    """Write a TXF detail record for a state quarterly estimated tax payment."""
+    # Ensure that a category is present so that TurboTax will parse the detail line correctly.
+    if category.lstrip() == '':
+        category = 'Sta qtr est tax'
+    _txf_write_record_format_6(
+        date, _txf_expense(amount), state, 522,
+        detail=f'{date:10.10} {account:30.30} {check_number:6.6} {payee:40.40}'\
+            f'{memo:40.40} {category:.15}')
+    return
+
+def write_state_est_tax_summary(amount: str, state: str) -> None:
+    """Write a TXF summary record for state quarterly estimated tax payments."""
+    _txf_write_record_format_6('', _txf_expense(amount), state, 522)
     return
