@@ -6,7 +6,7 @@ Read cash donations from a CSV file and write them to the console in Tax Exchang
 
 The requirements of the CSV file are as follows:
     * The mandatory column names are Date, Payee, and Amount.
-    * Optional column names are Account, Category, Check Number, and Memo.
+    * Optional column names are Account, Check Number, Memo, and Category.
     * The first row must be a header row that contains the column names.
     * The last row must have the sum of all cash donations in the Amount column.
     * The last row must not have any values in the Date, Payee, Account, Check Number, Memo, or
@@ -75,10 +75,10 @@ def write_txf_records(rows: Sequence[Mapping[str, str]], omit_header: bool) -> N
         else:
             taxexchangeformat.write_cash_donation(
                 row['Date'],
-                row.get('Account', ''),
-                row.get('Check Number', ''),
                 row['Payee'],
                 row['Amount'],
+                row.get('Account', ''),
+                row.get('Check Number', ''),
                 row.get('Memo', ''),
                 row.get('Category', ''))
     return
